@@ -1,41 +1,26 @@
 {
-  "name": "@lightbase/react-native-panorama-view",
+  "name": "@ahudz/react-native-panorama-view",
   "title": "React Native Panorama View",
   "version": "1.0.1",
-  "description": "A simple component for displaying panoramic images in your React Native app.",
+  "description": "Fork of https://github.com/lightbasenl/react-native-panorama-view/ to fix some android build problems",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
-  "homepage": "https://github.com/lightbasenl/react-native-panorama-view",
+  "homepage": "https://github.com/antonhudz/react-native-panorama-view",
   "scripts": {
     "build": "tsc",
     "test": "echo \"No tests specified\""
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/lightbasenl/react-native-panorama-view.git",
-    "baseUrl": "https://github.com/lightbasenl/react-native-panorama-view"
+    "url": "git+https://github.com/antonhudz/react-native-panorama-view.git",
+    "baseUrl": "https://github.com/antonhudz/react-native-panorama-view"
   },
   "keywords": [
     "react-native"
   ],
-  "author": {
-    "name": "Rody Molenaar",
-    "email": "rody@lightbase.nl",
-    "url": "https://github.com/lightbasenl"
-  },
-  "contributors": [
-    {
-      "name": "Thomas Hunt",
-      "email": "thomas.hunt@candide.eu"
-    },
-    {
-      "name": "Cristiano Coelho",
-      "email": "cristianocca@hotmail.com"
-    }
-  ],
+  "author": "Anton Hudz <gudz.anton@gmail.com> (https://github.com/antonhudz)",
   "license": "MIT",
   "licenseFilename": "LICENSE",
-  "readmeFilename": "README.md",
   "peerDependencies": {
     "react": "^16.13.1 || ^17",
     "react-native": ">=0.60.0 <1.0.x"
@@ -49,5 +34,11 @@
     "react": "^17.0.1",
     "react-native": "^0.63.4",
     "typescript": "^4.1.5"
+  },
+  "bugs": {
+    "url": "https://github.com/antonhudz/react-native-panorama-view/issues"
+  },
+  "directories": {
+    "example": "example"
   }
 }
