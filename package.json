@@ -3,7 +3,7 @@
   "title": "React Native Panorama View",
   "version": "1.0.2",
   "description": "Fork of https://github.com/lightbasenl/react-native-panorama-view/ to fix some android build problems",
-  "main": "src/index.js",
+  "main": "src/index.tsx",
   "types": "src/index.tsx",
   "homepage": "https://github.com/antonhudz/react-native-panorama-view",
   "scripts": {
