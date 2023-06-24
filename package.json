@@ -1,7 +1,7 @@
 {
   "name": "@ahudz/react-native-panorama-view",
   "title": "React Native Panorama View",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "description": "Fork of https://github.com/lightbasenl/react-native-panorama-view/ to fix some android build problems",
   "main": "src/index.tsx",
   "types": "src/index.tsx",
