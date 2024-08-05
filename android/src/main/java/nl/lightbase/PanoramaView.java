@@ -86,15 +86,7 @@ public class PanoramaView extends VrPanoramaView implements LifecycleEventListen
         }
     }
 
-    public void setDimensions(ReadableMap dimensions) {
-
-        imageWidth = dimensions.getInt("width");
-        imageHeight = dimensions.getInt("height");
-
-        //Log.i(LOG_TAG, "Image dimensions: " + imageWidth + ", " + imageHeight);
-
-    }
-
+    // TODO remove that
     public void setInputType(String inputType) {
         if(_inputType != null && _inputType.equals(inputType)){
             return;
