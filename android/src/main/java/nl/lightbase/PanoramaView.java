@@ -138,9 +138,10 @@ public class PanoramaView extends VrPanoramaView implements LifecycleEventListen
                 String value = fileInformation[0].first;
                 Uri imageUri = Uri.parse(value);
                 String scheme = imageUri.getScheme();
+                String imagePath = imageUri.getPath();
 
                 if(scheme == null || scheme.equalsIgnoreCase(SCHEME_FILE)){
-                    istr = new FileInputStream(new File(imageUri.getPath()));
+                    istr = new FileInputStream(new File(imagePath));
 
                 }
                 else{
@@ -153,7 +154,7 @@ public class PanoramaView extends VrPanoramaView implements LifecycleEventListen
                 }
 
                 Assertions.assertCondition(istr != null);
-                image = decodeSampledBitmap(istr);
+                image = decodeSampledBitmap(istr, imagePath);
 
             } catch (Exception e) {
                 if(isCancelled()){
@@ -181,56 +182,33 @@ public class PanoramaView extends VrPanoramaView implements LifecycleEventListen
             return true;
         }
 
-        private Bitmap decodeSampledBitmap(InputStream inputStream) throws IOException {
-            final byte[] bytes = getBytesFromInputStream(inputStream);
-            BitmapFactory.Options options = new BitmapFactory.Options();
-
-            if (imageWidth != 0 && imageHeight != 0) {
-                options.inJustDecodeBounds = true;
-                BitmapFactory.decodeByteArray(bytes, 0, bytes.length, options);
-
-                options.inSampleSize = calculateInSampleSize(options, imageWidth, imageHeight);
-                options.inJustDecodeBounds = false;
-            }
-
-            return BitmapFactory.decodeByteArray(bytes, 0, bytes.length, options);
+        private Bitmap decodeSampledBitmap(InputStream inputStream, String inputPath) {
+            Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
+            bitmap = rotateBitmapAccordingToExif(bitmap, inputPath);
+            return bitmap;
         }
 
-        private void copyData(InputStream in, ByteArrayOutputStream out) throws IOException {
-            byte[] buffer = new byte[8 * 1024];
-            int len;
-            while ((len = in.read(buffer)) > 0) {
-                out.write(buffer, 0, len);
+        private static Bitmap rotateBitmapAccordingToExif(Bitmap bitmap, String bitmapPath) {
+            int rotate = 0;
+            ExifInterface exif = new ExifInterface(bitmapPath);
+            int orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION,
+                ExifInterface.ORIENTATION_NORMAL);
+            switch (orientation) {
+                case ExifInterface.ORIENTATION_ROTATE_270:
+                    rotate = 270;
+                    break;
+                case ExifInterface.ORIENTATION_ROTATE_180:
+                    rotate = 180;
+                    break;
+                case ExifInterface.ORIENTATION_ROTATE_90:
+                    rotate = 90;
+                    break;
             }
-        }
+            Matrix matrix = new Matrix();
+            matrix.postRotate(rotate);
 
-        private byte[] getBytesFromInputStream(InputStream inputStream) throws IOException {
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-
-            copyData(inputStream, baos);
-
-            return baos.toByteArray();
-        }
-
-        private int calculateInSampleSize(BitmapFactory.Options options, int reqWidth, int reqHeight) {
-            // Raw height and width of image
-            final int height = options.outHeight;
-            final int width = options.outWidth;
-            int inSampleSize = 1;
-
-            if (height > reqHeight || width > reqWidth) {
-
-                final int halfHeight = height / 2;
-                final int halfWidth = width / 2;
-
-                // Calculate the largest inSampleSize value that is a power of 2 and keeps both
-                // height and width larger than the requested height and width.
-                while ((halfHeight / inSampleSize) > reqHeight && (halfWidth / inSampleSize) > reqWidth) {
-                    inSampleSize *= 2;
-                }
-            }
-
-            return inSampleSize;
+            return Bitmap.createBitmap(b, 0, 0, b.getWidth(),
+                b.getHeight(), matrix, true);
         }
     }
 
