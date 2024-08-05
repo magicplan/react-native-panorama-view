@@ -175,6 +175,10 @@ public class PanoramaView extends VrPanoramaView implements LifecycleEventListen
             Matrix matrix = new Matrix();
             matrix.postRotate(rotate);
 
+            if (rotate == 0) {
+                return bitmap;
+            }
+
             return Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(),
                 bitmap.getHeight(), matrix, true);
         }
