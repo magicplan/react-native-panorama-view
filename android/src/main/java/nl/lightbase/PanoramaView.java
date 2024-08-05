@@ -38,7 +38,6 @@ public class PanoramaView extends VrPanoramaView implements LifecycleEventListen
     private Integer imageHeight;
     private String imageUrl;
     private Bitmap image;
-    private String _inputType;
     private ThemedReactContext _context;
 
 
@@ -79,33 +78,10 @@ public class PanoramaView extends VrPanoramaView implements LifecycleEventListen
             }
 
             imageLoaderTask = new ImageLoaderTask();
-            imageLoaderTask.execute(Pair.create(imageUrl, _options));
+            imageLoaderTask.execute(Pair.create(imageUrl));
 
         } catch (Exception e) {
             emitImageLoadingFailed(e.toString());
-        }
-    }
-
-    // TODO remove that
-    public void setInputType(String inputType) {
-        if(_inputType != null && _inputType.equals(inputType)){
-            return;
-        }
-
-        _inputType = inputType;
-        switch (inputType) {
-            case "mono":
-                _options.inputType = _options.TYPE_MONO;
-                break;
-            case "stereo":
-                _options.inputType = _options.TYPE_STEREO_OVER_UNDER;
-                break;
-            default:
-                _options.inputType = _options.TYPE_MONO;
-        }
-
-        if(image != null){
-            loadImageFromBitmap(image, _options);
         }
     }
 
@@ -113,21 +89,19 @@ public class PanoramaView extends VrPanoramaView implements LifecycleEventListen
         setTouchTrackingEnabled(enableTouchTracking);
     }
 
-    class ImageLoaderTask extends AsyncTask<Pair<String, VrPanoramaView.Options>, Void, Boolean> {
+    class ImageLoaderTask extends AsyncTask<String, Void, Boolean> {
 
-        protected Boolean doInBackground(Pair<String, VrPanoramaView.Options>... fileInformation) {
+        protected Boolean doInBackground(String fileInformation) {
 
             if(isCancelled()){
                 return false;
             }
 
-            VrPanoramaView.Options _options = fileInformation[0].second;
-
             InputStream istr = null;
 
             try {
 
-                String value = fileInformation[0].first;
+                String value = fileInformation;
                 Uri imageUri = Uri.parse(value);
                 String scheme = imageUri.getScheme();
                 String imagePath = imageUri.getPath();
@@ -169,7 +143,7 @@ public class PanoramaView extends VrPanoramaView implements LifecycleEventListen
             }
 
             emitEvent("onImageDownloaded", null);
-            loadImageFromBitmap(image, _options);
+            loadImageFromBitmap(image, computeImageOptions(image));
 
             return true;
         }
@@ -201,6 +175,18 @@ public class PanoramaView extends VrPanoramaView implements LifecycleEventListen
 
             return Bitmap.createBitmap(b, 0, 0, b.getWidth(),
                 b.getHeight(), matrix, true);
+        }
+
+        // Detects if the image is spherical or cylindrical. This is the same function as iOS : 'private var panoramaTypeForCurrentImage: CTPanoramaType'
+        private static VrPanoramaView.Options computeImageOptions(Bitmap bitmap) {
+            VrPanoramaView.Options options = new VrPanoramaView.Options();
+            if ((bitmap.getWidth() / bitmap.getHeight()) == 2) {
+                options.inputType = VrPanoramaView.Options.TYPE_MONO;
+                return .spherical
+            } else {
+                options.inputType = VrPanoramaView.Options.TYPE_STEREO_OVER_UNDER;
+            }
+            return options;
         }
     }
 
