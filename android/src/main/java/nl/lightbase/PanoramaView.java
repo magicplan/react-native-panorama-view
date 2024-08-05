@@ -1,7 +1,9 @@
 package nl.lightbase;
 
+import android.media.ExifInterface;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
 import android.os.AsyncTask;
 import androidx.annotation.Nullable;
 import android.util.Log;
@@ -78,7 +80,7 @@ public class PanoramaView extends VrPanoramaView implements LifecycleEventListen
             }
 
             imageLoaderTask = new ImageLoaderTask();
-            imageLoaderTask.execute(Pair.create(imageUrl));
+            imageLoaderTask.execute(imageUrl);
 
         } catch (Exception e) {
             emitImageLoadingFailed(e.toString());
@@ -91,7 +93,7 @@ public class PanoramaView extends VrPanoramaView implements LifecycleEventListen
 
     class ImageLoaderTask extends AsyncTask<String, Void, Boolean> {
 
-        protected Boolean doInBackground(String fileInformation) {
+        protected Boolean doInBackground(String... fileInformation) {
 
             if(isCancelled()){
                 return false;
@@ -101,7 +103,7 @@ public class PanoramaView extends VrPanoramaView implements LifecycleEventListen
 
             try {
 
-                String value = fileInformation;
+                String value = fileInformation[0];
                 Uri imageUri = Uri.parse(value);
                 String scheme = imageUri.getScheme();
                 String imagePath = imageUri.getPath();
@@ -148,13 +150,13 @@ public class PanoramaView extends VrPanoramaView implements LifecycleEventListen
             return true;
         }
 
-        private Bitmap decodeSampledBitmap(InputStream inputStream, String inputPath) {
+        private Bitmap decodeSampledBitmap(InputStream inputStream, String inputPath) throws IOException {
             Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
             bitmap = rotateBitmapAccordingToExif(bitmap, inputPath);
             return bitmap;
         }
 
-        private static Bitmap rotateBitmapAccordingToExif(Bitmap bitmap, String bitmapPath) {
+        private static Bitmap rotateBitmapAccordingToExif(Bitmap bitmap, String bitmapPath) throws IOException {
             int rotate = 0;
             ExifInterface exif = new ExifInterface(bitmapPath);
             int orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION,
@@ -173,16 +175,16 @@ public class PanoramaView extends VrPanoramaView implements LifecycleEventListen
             Matrix matrix = new Matrix();
             matrix.postRotate(rotate);
 
-            return Bitmap.createBitmap(b, 0, 0, b.getWidth(),
-                b.getHeight(), matrix, true);
+            return Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(),
+                bitmap.getHeight(), matrix, true);
         }
 
         // Detects if the image is spherical or cylindrical. This is the same function as iOS : 'private var panoramaTypeForCurrentImage: CTPanoramaType'
         private static VrPanoramaView.Options computeImageOptions(Bitmap bitmap) {
             VrPanoramaView.Options options = new VrPanoramaView.Options();
             if ((bitmap.getWidth() / bitmap.getHeight()) == 2) {
+                // mono = spherical
                 options.inputType = VrPanoramaView.Options.TYPE_MONO;
-                return .spherical
             } else {
                 options.inputType = VrPanoramaView.Options.TYPE_STEREO_OVER_UNDER;
             }
