@@ -204,7 +204,6 @@ public class PanoramaView extends VrPanoramaView implements LifecycleEventListen
 
             Bitmap newBitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(),
                 bitmap.getHeight(), matrix, true);
-            // bitmap.recycle();
             return newBitmap;
         }
 
