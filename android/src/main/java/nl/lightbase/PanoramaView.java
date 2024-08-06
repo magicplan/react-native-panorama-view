@@ -133,14 +133,13 @@ public class PanoramaView extends VrPanoramaView implements LifecycleEventListen
             }
 
             VrPanoramaView.Options _options = fileInformation[0].second;
-            String imagePath = fileInformation[0].first;
-
+            Uri imageUri = Uri.parse(fileInformation[0].first);
+            String imagePath = imageUri.getPath();
             InputStream istr = null;
 
             try {
 
-                String value = imagePath;
-                Uri imageUri = Uri.parse(value);
+                String value = fileInformation[0].first;
                 String scheme = imageUri.getScheme();
 
                 if(scheme == null || scheme.equalsIgnoreCase(SCHEME_FILE)){
@@ -158,7 +157,7 @@ public class PanoramaView extends VrPanoramaView implements LifecycleEventListen
 
                 Assertions.assertCondition(istr != null);
                 image = decodeSampledBitmap(istr);
-                // image = rotateBitmapAccordingToExif(image, imagePath);
+                image = rotateBitmapAccordingToExif(image, imagePath);
 
             } catch (Exception e) {
                 if(isCancelled()){
@@ -188,7 +187,6 @@ public class PanoramaView extends VrPanoramaView implements LifecycleEventListen
 
         private Bitmap decodeSampledBitmap(InputStream inputStream) throws IOException {
             final byte[] bytes = IOUtils.toByteArray(inputStream);
-            //getBytesFromInputStream(inputStream);
 
             BitmapFactory.Options options = new BitmapFactory.Options();
             options.inJustDecodeBounds = true;
@@ -229,7 +227,7 @@ public class PanoramaView extends VrPanoramaView implements LifecycleEventListen
 
             Bitmap newBitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(),
                 bitmap.getHeight(), matrix, true);
-            bitmap.recycle();
+            // bitmap.recycle();
             return newBitmap;
         }
 
