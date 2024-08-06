@@ -79,11 +79,6 @@ public class PanoramaViewManager extends SimpleViewManager<PanoramaView> {
         view.setDimensions(dimensions);
     }
 
-    @ReactProp(name = "inputType")
-    public void setInputType(PanoramaView view, String inputType) {
-        view.setInputType(inputType);
-    }
-
     @ReactProp(name = "enableTouchTracking")
     public void setEnableTouchTracking(PanoramaView view, boolean enableTouchTracking) {
         view.setEnableTouchTracking(enableTouchTracking);
