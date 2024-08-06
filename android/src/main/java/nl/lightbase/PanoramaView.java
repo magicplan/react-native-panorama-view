@@ -28,7 +28,6 @@ import java.io.FileInputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-
 public class PanoramaView extends VrPanoramaView implements LifecycleEventListener {
     private static final String LOG_TAG = "PanoramaView";
     private final static String SCHEME_FILE = "file";
@@ -145,12 +144,23 @@ public class PanoramaView extends VrPanoramaView implements LifecycleEventListen
             }
 
             emitEvent("onImageDownloaded", null);
-            loadImageFromBitmap(image, computeImageOptions(image));
+            
+            VrPanoramaView.Options imageOptions = computeImageOptions(image);
+            byte[] imageByteArray = consumeBitmapToByteBuffer(image);
+            loadImageFromByteArray(imageByteArray, imageOptions);
 
             return true;
         }
 
-        private Bitmap decodeSampledBitmap(InputStream inputStream, String inputPath) throws IOException {
+        private static byte[] consumeBitmapToByteBuffer(Bitmap bitmap) {
+            ByteArrayOutputStream stream = new ByteArrayOutputStream();
+            bitmap.compress(CompressFormat.JPEG,80, stream);
+            byte[] byteArray = stream.toByteArray();
+            bitmap.recycle();
+            return byteArray;
+        }
+
+        private static Bitmap decodeSampledBitmap(InputStream inputStream, String inputPath) throws IOException {
             Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
             bitmap = rotateBitmapAccordingToExif(bitmap, inputPath);
             return bitmap;
@@ -179,8 +189,10 @@ public class PanoramaView extends VrPanoramaView implements LifecycleEventListen
                 return bitmap;
             }
 
-            return Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(),
+            Bitmap newBitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(),
                 bitmap.getHeight(), matrix, true);
+            bitmap.recycle();
+            return newBitmap;
         }
 
         // Detects if the image is spherical or cylindrical. This is the same function as iOS : 'private var panoramaTypeForCurrentImage: CTPanoramaType'
