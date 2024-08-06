@@ -2,6 +2,8 @@ package nl.lightbase;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
+import android.media.ExifInterface;
 import android.os.AsyncTask;
 import androidx.annotation.Nullable;
 import android.util.Log;
@@ -25,6 +27,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import org.apache.commons.io.IOUtils;
 
 
 public class PanoramaView extends VrPanoramaView implements LifecycleEventListener {
@@ -130,12 +133,13 @@ public class PanoramaView extends VrPanoramaView implements LifecycleEventListen
             }
 
             VrPanoramaView.Options _options = fileInformation[0].second;
+            String imagePath = fileInformation[0].first;
 
             InputStream istr = null;
 
             try {
 
-                String value = fileInformation[0].first;
+                String value = imagePath;
                 Uri imageUri = Uri.parse(value);
                 String scheme = imageUri.getScheme();
 
@@ -154,6 +158,7 @@ public class PanoramaView extends VrPanoramaView implements LifecycleEventListen
 
                 Assertions.assertCondition(istr != null);
                 image = decodeSampledBitmap(istr);
+                // image = rotateBitmapAccordingToExif(image, imagePath);
 
             } catch (Exception e) {
                 if(isCancelled()){
@@ -182,34 +187,50 @@ public class PanoramaView extends VrPanoramaView implements LifecycleEventListen
         }
 
         private Bitmap decodeSampledBitmap(InputStream inputStream) throws IOException {
-            final byte[] bytes = getBytesFromInputStream(inputStream);
+            final byte[] bytes = IOUtils.toByteArray(inputStream);
+            //getBytesFromInputStream(inputStream);
+
             BitmapFactory.Options options = new BitmapFactory.Options();
+            options.inJustDecodeBounds = true;
+            Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length, options);
 
             if (imageWidth != 0 && imageHeight != 0) {
-                options.inJustDecodeBounds = true;
-                BitmapFactory.decodeByteArray(bytes, 0, bytes.length, options);
-
+                // We reduce the size of the image for faster loading in the viewer
                 options.inSampleSize = calculateInSampleSize(options, imageWidth, imageHeight);
                 options.inJustDecodeBounds = false;
-            }
-
-            return BitmapFactory.decodeByteArray(bytes, 0, bytes.length, options);
-        }
-
-        private void copyData(InputStream in, ByteArrayOutputStream out) throws IOException {
-            byte[] buffer = new byte[8 * 1024];
-            int len;
-            while ((len = in.read(buffer)) > 0) {
-                out.write(buffer, 0, len);
+                return BitmapFactory.decodeByteArray(bytes, 0, bytes.length, options);
+            } else {
+                return bitmap;
             }
         }
 
-        private byte[] getBytesFromInputStream(InputStream inputStream) throws IOException {
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        private Bitmap rotateBitmapAccordingToExif(Bitmap bitmap, String bitmapPath) throws IOException {
+            int rotate = 0;
+            ExifInterface exif = new ExifInterface(bitmapPath);
+            int orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION,
+                ExifInterface.ORIENTATION_NORMAL);
+            switch (orientation) {
+                case ExifInterface.ORIENTATION_ROTATE_270:
+                    rotate = 270;
+                    break;
+                case ExifInterface.ORIENTATION_ROTATE_180:
+                    rotate = 180;
+                    break;
+                case ExifInterface.ORIENTATION_ROTATE_90:
+                    rotate = 90;
+                    break;
+            }
+            Matrix matrix = new Matrix();
+            matrix.postRotate(rotate);
 
-            copyData(inputStream, baos);
+            if (rotate == 0) {
+                return bitmap;
+            }
 
-            return baos.toByteArray();
+            Bitmap newBitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(),
+                bitmap.getHeight(), matrix, true);
+            bitmap.recycle();
+            return newBitmap;
         }
 
         private int calculateInSampleSize(BitmapFactory.Options options, int reqWidth, int reqHeight) {
@@ -261,9 +282,9 @@ public class PanoramaView extends VrPanoramaView implements LifecycleEventListen
         }
 
         _context.getJSModule(RCTEventEmitter.class).receiveEvent(
-                getId(),
-                name,
-                event
+            getId(),
+            name,
+            event
         );
     }
 
