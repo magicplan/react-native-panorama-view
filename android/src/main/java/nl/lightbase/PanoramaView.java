@@ -41,7 +41,6 @@ public class PanoramaView extends VrPanoramaView implements LifecycleEventListen
     private Integer imageHeight;
     private String imageUrl;
     private Bitmap image;
-    private String _inputType;
     private ThemedReactContext _context;
 
 
@@ -96,28 +95,6 @@ public class PanoramaView extends VrPanoramaView implements LifecycleEventListen
 
         //Log.i(LOG_TAG, "Image dimensions: " + imageWidth + ", " + imageHeight);
 
-    }
-
-    public void setInputType(String inputType) {
-        if(_inputType != null && _inputType.equals(inputType)){
-            return;
-        }
-
-        _inputType = inputType;
-        switch (inputType) {
-            case "mono":
-                _options.inputType = _options.TYPE_MONO;
-                break;
-            case "stereo":
-                _options.inputType = _options.TYPE_STEREO_OVER_UNDER;
-                break;
-            default:
-                _options.inputType = _options.TYPE_MONO;
-        }
-
-        if(image != null){
-            loadImageFromBitmap(image, _options);
-        }
     }
 
     public void setEnableTouchTracking(boolean enableTouchTracking) {
