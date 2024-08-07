@@ -11,13 +11,16 @@ import Foundation
     @objc public var onImageDownloaded: RCTDirectEventBlock? = nil
     @objc public var onImageLoaded: RCTDirectEventBlock? = nil
 
-    @objc public var enableTouchTracking: Bool = true {
+    @objc public var controlMethod: String = "Both" {
         didSet {
-            if(enableTouchTracking){
+            if(controlMethod == "Both"){
                 self.panoramaView?.controlMethod = .both;
             }
-            else{
+            else if(controlMethod == "Motion"){
                 self.panoramaView?.controlMethod = .motion;
+            }
+            else if(controlMethod == "Touch") {
+                self.panoramaView?.controlMethod = .touch;
             }
         }
     }

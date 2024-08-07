@@ -79,8 +79,16 @@ public class PanoramaViewManager extends SimpleViewManager<PanoramaView> {
         view.setDimensions(dimensions);
     }
 
-    @ReactProp(name = "enableTouchTracking")
-    public void setEnableTouchTracking(PanoramaView view, boolean enableTouchTracking) {
-        view.setEnableTouchTracking(enableTouchTracking);
+    @ReactProp(name = "controlMethod")
+    public void setControlMethod(PanoramaView view, String controlMethod) {
+        ControlMethod methodEnum = ControlMethod.Both;
+        if (controlMethod.equals("Motion")) {
+            methodEnum = ControlMethod.Motion;
+        }else if (controlMethod.equals("Touch")) {
+            methodEnum = ControlMethod.Touch;
+        }else if (controlMethod.equals("Both")) {
+            methodEnum = ControlMethod.Both;
+        }
+        view.setControlMethod(methodEnum);
     }
 }

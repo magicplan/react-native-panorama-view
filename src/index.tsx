@@ -1,10 +1,12 @@
 import * as React from "react";
 import { requireNativeComponent, ViewStyle, Platform } from "react-native";
 
+type PanoramaViewControlMethod = "Motion" | "Touch" | "Both";
+
 export type PanoramaViewProps = {
   imageUrl: string;
+  controlMethod: PanoramaViewControlMethod,
   dimensions?: { width: number; height: number }; // Android-only
-  enableTouchTracking?: boolean;
   onImageLoadingFailed?: () => void;
   onImageDownloaded?: () => void;
   onImageLoaded?: () => void;
