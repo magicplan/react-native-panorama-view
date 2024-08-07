@@ -10,7 +10,7 @@
 
 @interface RCT_EXTERN_MODULE(PanoramaViewManager, RCTViewManager)
 
-RCT_EXPORT_VIEW_PROPERTY(enableTouchTracking, BOOL);
+RCT_EXPORT_VIEW_PROPERTY(controlMethod, NSString);
 RCT_EXPORT_VIEW_PROPERTY(onImageLoadingFailed, RCTDirectEventBlock);
 RCT_EXPORT_VIEW_PROPERTY(onImageDownloaded, RCTDirectEventBlock);
 RCT_EXPORT_VIEW_PROPERTY(onImageLoaded, RCTDirectEventBlock);

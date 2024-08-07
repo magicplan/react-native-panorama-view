@@ -29,7 +29,6 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import org.apache.commons.io.IOUtils;
 
-
 public class PanoramaView extends VrPanoramaView implements LifecycleEventListener {
     private static final String LOG_TAG = "PanoramaView";
     private final static String SCHEME_FILE = "file";
@@ -97,8 +96,21 @@ public class PanoramaView extends VrPanoramaView implements LifecycleEventListen
 
     }
 
-    public void setEnableTouchTracking(boolean enableTouchTracking) {
-        setTouchTrackingEnabled(enableTouchTracking);
+    public void setControlMethod(ControlMethod controlMethod) {
+        switch (controlMethod) {
+            case Motion:
+                this.setTouchTrackingEnabled(false);
+                this.setPureTouchTracking(false);
+                break;
+            case Touch:
+                this.setTouchTrackingEnabled(true);
+                this.setPureTouchTracking(true);
+                break;
+            case Both:
+                this.setTouchTrackingEnabled(true);
+                this.setPureTouchTracking(false);
+                break;
+        }
     }
 
     class ImageLoaderTask extends AsyncTask<Pair<String, VrPanoramaView.Options>, Void, Boolean> {
